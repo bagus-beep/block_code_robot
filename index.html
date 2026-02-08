@@ -93,12 +93,20 @@
   </ul>
 </div>
 
-<div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center">
-  <div class="bg-white rounded-xl p-6 shadow-xl text-center animate-bounce">
+<!-- MODAL -->
+<div id="modal"
+     class="fixed inset-0 hidden items-center justify-center bg-black/50">
+  
+  <div class="bg-white rounded-xl p-6 w-80 text-center shadow-xl animate-pop">
     <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
-    <p id="modalBody" class="mb-4"></p>
-    <button onclick="closeModal()" class="btn-primary">OK</button>
+    <p id="modalText" class="text-gray-600 mb-4"></p>
+
+    <button onclick="closeModal()"
+      class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+      OK
+    </button>
   </div>
+
 </div>
 
 <script src="script.js"></script>
@@ -110,4 +118,5 @@ if("serviceWorker" in navigator){
 </body>
 
 </html>
+
 
