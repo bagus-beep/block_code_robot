@@ -98,35 +98,39 @@ function renderBadges(){
 }
 
 /* =========================================================
-   MAZE GENERATOR (ANTI BUNTU)
+   MAZE GENERATOR
 ========================================================= */
 const MAX_LEVEL = 10;
 const MAZE_SIZE = 10;
 
 function generateMaze(level){
-  const maze = Array.from({length:MAZE_SIZE},(_,y)=>
-    Array.from({length:MAZE_SIZE},(_,x)=>
-      (x===0||y===0||x===MAZE_SIZE-1||y===MAZE_SIZE-1)?1:0
+  const maze = Array.from({length: MAZE_SIZE}, (_, y) =>
+    Array.from({length: MAZE_SIZE}, (_, x) =>
+      (x === 0 || y === 0 || x === MAZE_SIZE - 1 || y === MAZE_SIZE - 1) ? 1 : 0
     )
   );
 
   const wallCount = 12 + level * 4;
+
   for(let i=0;i<wallCount;i++){
-    const x=1+Math.floor(Math.random()*(MAZE_SIZE-2));
-    const y=1+Math.floor(Math.random()*(MAZE_SIZE-2));
-    if(x!==1||y!==1) maze[y][x]=1;
+    const x = 1 + Math.floor(Math.random() * (MAZE_SIZE - 2));
+    const y = 1 + Math.floor(Math.random() * (MAZE_SIZE - 2));
+    if(x !== 1 || y !== 1) maze[y][x] = 1;
   }
 
-  let fx,fy;
+  let fx, fy;
   do{
-    fx=1+Math.floor(Math.random()*(MAZE_SIZE-2));
-    fy=1+Math.floor(Math.random()*(MAZE_SIZE-2));
-  }while(maze[fy][fx]===1||(fx===1&&fy===1));
-  maze[fy][fx]=2;
+    fx = 1 + Math.floor(Math.random() * (MAZE_SIZE - 2));
+    fy = 1 + Math.floor(Math.random() * (MAZE_SIZE - 2));
+  } while (
+    maze[fy][fx] === 1 ||
+    (fx === 1 && fy === 1)
+  );
 
-  // ✅ jalur aman (L-shape)
-  for(let x=1;x<=fx;x++) maze[1][x]=0;
-  for(let y=1;y<=fy;y++) maze[y][fx]=0;
+  for(let x = 1; x <= fx; x++) maze[1][x] = 0;
+  for(let y = 1; y <= fy; y++) maze[y][fx] = 0;
+
+  maze[fy][fx] = 2;
 
   return maze;
 }
@@ -347,3 +351,4 @@ renderBadges();
 initLevels();
 level=Math.max(0,profile.level-1);
 reset();
+
