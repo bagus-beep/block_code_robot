@@ -49,13 +49,12 @@ modalUpload.addEventListener("change", e=>{
   reader.readAsDataURL(file);
 });
 
-function initPlayer() {
+function initPlayer(){
   const player = loadPlayer();
-
-  if (player.name && player.name.trim() !== "") {
+  if(player.name){
     applyPlayer(player);
     modal.classList.add("hidden");
-  } else {
+  }else{
     modal.classList.remove("hidden");
   }
 }
@@ -92,78 +91,136 @@ function unlockBadge(key){
 }
 
 function renderBadges(){
-  const el = document.getElementById("badges");
+  const el=document.getElementById("badges");
   if(!el) return;
-  el.innerHTML = profile.badges.map(b=>`<span class="badge">${BADGES[b].icon}</span>`).join("");
+  el.innerHTML = profile.badges
+    .map(b=>`<span class="badge">${BADGES[b].icon}</span>`).join("");
 }
 
 /* =========================================================
-   MAZE & CANVAS
+   MAZE GENERATOR (ANTI BUNTU)
 ========================================================= */
-const TILE = 40;
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const MAX_LEVEL = 10;
+const MAZE_SIZE = 10;
 
-const levels=[[
- [1,1,1,1,1,1,1,1,1,1],
- [1,0,0,0,0,0,0,0,2,1],
- [1,0,1,1,1,0,1,0,0,1],
- [1,0,0,0,1,0,1,1,0,1],
- [1,1,1,0,1,0,0,0,0,1],
- [1,0,0,0,0,0,1,1,0,1],
- [1,0,1,1,1,0,0,0,0,1],
- [1,0,0,0,1,0,1,1,0,1],
- [1,0,1,0,0,0,0,0,0,1],
- [1,1,1,1,1,1,1,1,1,1]
-]];
+function generateMaze(level){
+  const maze = Array.from({length:MAZE_SIZE},(_,y)=>
+    Array.from({length:MAZE_SIZE},(_,x)=>
+      (x===0||y===0||x===MAZE_SIZE-1||y===MAZE_SIZE-1)?1:0
+    )
+  );
 
-let gridX, gridY, dir, score=0, level=0, hitWall=false;
+  const wallCount = 12 + level * 4;
+  for(let i=0;i<wallCount;i++){
+    const x=1+Math.floor(Math.random()*(MAZE_SIZE-2));
+    const y=1+Math.floor(Math.random()*(MAZE_SIZE-2));
+    if(x!==1||y!==1) maze[y][x]=1;
+  }
+
+  let fx,fy;
+  do{
+    fx=1+Math.floor(Math.random()*(MAZE_SIZE-2));
+    fy=1+Math.floor(Math.random()*(MAZE_SIZE-2));
+  }while(maze[fy][fx]===1||(fx===1&&fy===1));
+  maze[fy][fx]=2;
+
+  // ✅ jalur aman (L-shape)
+  for(let x=1;x<=fx;x++) maze[1][x]=0;
+  for(let y=1;y<=fy;y++) maze[y][fx]=0;
+
+  return maze;
+}
+
+/* =========================================================
+   CANVAS & GAME STATE
+========================================================= */
+const TILE=40;
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+let levels=[];
+let gridX,gridY,dir,score=0,level=0,hitWall=false;
+
+function initLevels(){
+  levels=[];
+  for(let i=0;i<MAX_LEVEL;i++) levels.push(generateMaze(i+1));
+}
 
 function reset(){
-  gridX=1; gridY=1; dir=0; score=0; hitWall=false;
+  gridX=1; gridY=1; dir=0; hitWall=false;
   updateUI(); draw();
 }
 
 function draw(){
+  if(!levels[level]) return;
   ctx.clearRect(0,0,400,400);
-  const maze = levels[level];
+  const maze=levels[level];
+
   maze.forEach((r,y)=>r.forEach((c,x)=>{
     if(c===1){ctx.fillStyle="#374151";ctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
     if(c===2){ctx.fillStyle="#22c55e";ctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
   }));
+
   ctx.save();
   ctx.translate(gridX*TILE+20,gridY*TILE+20);
   ctx.rotate(dir*Math.PI/180);
   ctx.fillStyle="#2563eb";
   ctx.beginPath();
   ctx.moveTo(15,0);ctx.lineTo(-10,-10);ctx.lineTo(-10,10);
-  ctx.closePath();ctx.fill();ctx.restore();
+  ctx.closePath();ctx.fill();
+  ctx.restore();
 }
 
+/* =========================================================
+   ROBOT ACTIONS
+========================================================= */
 function moveForward(){
-  const dx=[1,0,-1,0], dy=[0,1,0,-1];
+  const dx=[1,0,-1,0],dy=[0,1,0,-1];
   const nx=gridX+dx[dir/90], ny=gridY+dy[dir/90];
   const tile=levels[level][ny][nx];
+
   if(tile===1){
     hitWall=true; profile.stats.crashes++;
     if(profile.stats.crashes>=3) unlockBadge("WALL_HIT");
     saveProfile(); showToast("🚧 Oops!","Robot menabrak tembok!","error");
     throw new Error("wall");
   }
-  gridX=nx; gridY=ny; score+=10; profile.score+=10;
+
+  gridX=nx; gridY=ny;
+  score+=10; profile.score+=10;
+
   if(tile===2) nextLevel();
   updateUI(); draw();
 }
+
 function turnLeft(){dir=(dir+270)%360;draw();}
 function turnRight(){dir=(dir+90)%360;draw();}
 
+/* =========================================================
+   LEVEL FLOW
+========================================================= */
 function nextLevel(){
   unlockBadge("LEVEL_CLEAR");
-  if(!hitWall){profile.stats.perfectRuns++;unlockBadge("PERFECT");}
-  const speed=+document.getElementById("speed").value;
-  if(speed>=15) unlockBadge("SPEED");
-  profile.level++; saveProfile(); submitLeaderboard();
-  showToast("🎉 Level Selesai!","Naik ke level berikutnya 🚀","success");
+
+  if(!hitWall){
+    profile.stats.perfectRuns++;
+    unlockBadge("PERFECT");
+  }
+
+  if(+document.getElementById("speed").value>=15)
+    unlockBadge("SPEED");
+
+  profile.level++;
+  saveProfile();
+  level++;
+
+  if(level>=MAX_LEVEL){
+    showToast("🏆 Tamat!","Semua level selesai!","success");
+    running=false;
+    return;
+  }
+
+  showToast("🎉 Level Up!",`Masuk Level ${level+1}`,"success");
   reset();
 }
 
@@ -171,7 +228,11 @@ function nextLevel(){
    UI & TOAST
 ========================================================= */
 const scoreEl=document.getElementById("score");
-function updateUI(){scoreEl.textContent=score;}
+function updateUI(){
+  scoreEl.textContent=score;
+  const lvl=document.getElementById("levelUI");
+  if(lvl) lvl.textContent=level+1;
+}
 
 const toast=document.getElementById("gameToast");
 const toastBox=document.getElementById("gameToastBox");
@@ -187,35 +248,34 @@ function showToast(title,msg,type="info"){
     (type==="error"?"bg-red-50 border-red-500":
      type==="success"?"bg-green-50 border-green-500":
      "bg-blue-50 border-blue-500");
-  toastTitle.innerHTML=title; toastBody.innerHTML=msg;
+  toastTitle.innerHTML=title;
+  toastBody.innerHTML=msg;
   toast.classList.remove("hidden");
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>toast.classList.add("hidden"),2200);
 }
 
 /* =========================================================
-   BLOCKLY SAFE INIT
+   BLOCKLY
 ========================================================= */
 let workspace;
-
 window.addEventListener("DOMContentLoaded",()=>{
-
-  Blockly.Blocks['start']={
-    init(){this.appendDummyInput().appendField("▶ mulai");
-    this.setNextStatement(true);this.setColour(20);}
-  };
-  Blockly.Blocks['move_forward']={
-    init(){this.appendDummyInput().appendField("maju");
-    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);}
-  };
-  Blockly.Blocks['turn_left']={
-    init(){this.appendDummyInput().appendField("belok kiri");
-    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);}
-  };
-  Blockly.Blocks['turn_right']={
-    init(){this.appendDummyInput().appendField("belok kanan");
-    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);}
-  };
+  Blockly.Blocks['start']={init(){
+    this.appendDummyInput().appendField("▶ mulai");
+    this.setNextStatement(true);this.setColour(20);
+  }};
+  Blockly.Blocks['move_forward']={init(){
+    this.appendDummyInput().appendField("maju");
+    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);
+  }};
+  Blockly.Blocks['turn_left']={init(){
+    this.appendDummyInput().appendField("belok kiri");
+    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);
+  }};
+  Blockly.Blocks['turn_right']={init(){
+    this.appendDummyInput().appendField("belok kanan");
+    this.setPreviousStatement(true);this.setNextStatement(true);this.setColour(210);
+  }};
 
   Blockly.JavaScript.forBlock['start']=()=>``;
   Blockly.JavaScript.forBlock['move_forward']=()=>`moveForward();\n`;
@@ -224,35 +284,48 @@ window.addEventListener("DOMContentLoaded",()=>{
 
   workspace=Blockly.inject("blocklyDiv",{
     toolbox:document.getElementById("toolbox"),
-    trashcan:true, scrollbars:true
+    trashcan:true,scrollbars:true
   });
 });
 
 /* =========================================================
-   RUN VALIDATION
+   RUN ENGINE
 ========================================================= */
+let interpreter,running=false;
+
 function hasStartBlock(){
   return workspace.getTopBlocks(false).some(b=>b.type==="start");
 }
 
-let interpreter,running=false;
-
 function run(){
+  const player=loadPlayer();
+  if(!player.name){
+    modal.classList.remove("hidden");
+    showToast("👤","Isi nama pemain dulu","error");
+    return;
+  }
   if(!hasStartBlock()){
     showToast("❗ Error","Program harus diawali ▶ mulai","error");
     return;
   }
+
+  level=Math.max(0,profile.level-1);
   reset();
+
   const code=Blockly.JavaScript.workspaceToCode(workspace);
-  profile.stats.runs++; unlockBadge("FIRST_RUN");
-  if(code.includes("for")){profile.stats.loopsUsed++;unlockBadge("LOOP_MASTER");}
+  profile.stats.runs++;
+  unlockBadge("FIRST_RUN");
+  if(code.includes("for")) unlockBadge("LOOP_MASTER");
   saveProfile();
+
   interpreter=new Interpreter(code,(i,g)=>{
     i.setProperty(g,'moveForward',i.createNativeFunction(moveForward));
     i.setProperty(g,'turnLeft',i.createNativeFunction(turnLeft));
     i.setProperty(g,'turnRight',i.createNativeFunction(turnRight));
   });
-  running=true; loop();
+
+  running=true;
+  loop();
 }
 
 function loop(){
@@ -271,6 +344,6 @@ function stepOnce(){interpreter?.step();}
    INIT
 ========================================================= */
 renderBadges();
+initLevels();
+level=Math.max(0,profile.level-1);
 reset();
-
-
