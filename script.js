@@ -130,7 +130,7 @@ function moveForward(){
     profile.stats.crashes++;
     if (profile.stats.crashes >= 3) unlockBadge("WALL_HIT");
     saveProfile();
-    // showToast("🚧 Oops!", "Robot menabrak tembok!");
+    showToast("🚧 Oops!", "Robot menabrak tembok!");
     throw "wall";
   }
 
@@ -375,4 +375,5 @@ function positionToast() {
   toast.style.top = rect.top + window.scrollY + 12 + "px";
   toast.style.left = rect.left + window.scrollX + 12 + "px";
 }
+
 
