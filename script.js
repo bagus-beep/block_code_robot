@@ -19,7 +19,7 @@ const headerAvatar = document.getElementById("playerAvatarHeader");
 function loadPlayer(){
   return JSON.parse(localStorage.getItem(STORAGE_PLAYER)) || {
     name: "",
-    avatar: "avatar.png"
+    avatar: "icon-192.png"
   };
 }
 
@@ -272,4 +272,5 @@ function stepOnce(){interpreter?.step();}
 ========================================================= */
 renderBadges();
 reset();
+
 
