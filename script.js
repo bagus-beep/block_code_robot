@@ -281,3 +281,75 @@ function closeModal(){
 const scoreEl=document.getElementById("score");
 renderBadges();
 reset();
+
+/* ============== PLAYER PROFILE ============== */
+const PLAYER_KEY = "robot_maze_player";
+
+const player = JSON.parse(localStorage.getItem(PLAYER_KEY)) || {
+  name: "Player",
+  avatar: null
+};
+
+const nameInput = document.getElementById("playerName");
+const avatarUpload = document.getElementById("avatarUpload");
+const avatarPreview = document.getElementById("avatarPreview");
+
+nameInput.value = player.name;
+if (player.avatar) avatarPreview.src = player.avatar;
+
+nameInput.addEventListener("input", () => {
+  player.name = nameInput.value;
+  savePlayer();
+});
+
+avatarUpload.addEventListener("change", e => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    player.avatar = reader.result;
+    avatarPreview.src = reader.result;
+    savePlayer();
+  };
+  reader.readAsDataURL(file);
+});
+
+function savePlayer(){
+  localStorage.setItem(PLAYER_KEY, JSON.stringify(player));
+}
+
+function renderLeaderboard(data) {
+  const el = document.getElementById("leaderboard");
+  if (!el) return;
+
+  el.innerHTML = data.map((u,i)=>`
+    <li class="flex items-center gap-3 bg-gray-100 rounded-lg p-2">
+      <span class="font-bold w-6">#${i+1}</span>
+      <img src="${u.avatar || 'avatar.png'}"
+           class="w-8 h-8 rounded-full border">
+      <div class="flex-1">
+        <div class="font-semibold">${u.name || 'Player'}</div>
+        <div class="text-xs text-gray-500">
+          ⭐ ${u.score} | Lv ${u.level} | 🏆 ${u.badges}
+        </div>
+      </div>
+    </li>
+  `).join("");
+}
+
+async function submitLeaderboard() {
+  try {
+    await fetch(API_LEADERBOARD, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: player.name,
+        avatar: player.avatar,
+        score: profile.score,
+        level: profile.level,
+        badges: profile.badges.length
+      })
+    });
+  } catch {
+    console.warn("Offline mode");
+  }
+}
