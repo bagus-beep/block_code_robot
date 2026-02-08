@@ -48,10 +48,6 @@ canvas{
   to   { box-shadow: 0 0 18px #f97316; }
 }
 
-#modal {
-  z-index: 99999;      /* DI ATAS BLOCKLY */
-}
-
 .animate-pop {
   animation: pop .25s ease-out;
 }
@@ -70,3 +66,4 @@ canvas{
 .animate-slide {
   animation: slideIn 0.25s ease-out;
 }
+
