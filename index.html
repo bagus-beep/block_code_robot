@@ -28,8 +28,19 @@
       🤖 Robot Maze Game
     </h1>
 
-    <div class="bg-white p-3 rounded-xl shadow-lg">
+    <div class="relative bg-white p-3 rounded-xl shadow-lg">
       <canvas id="canvas" width="400" height="400"></canvas>
+        <!-- GAME POPUP -->
+        <div id="modal"
+          class="hidden absolute top-4 left-4 z-50 max-w-xs">
+        
+          <div class="bg-white border-l-4 border-blue-500
+                      rounded-lg shadow-lg p-4 animate-slide">
+            <h2 id="modalTitle" class="font-bold text-sm"></h2>
+            <p id="modalBody" class="text-xs text-gray-600 mt-1"></p>
+          </div>
+        
+        </div>
     </div>
 
     <div class="text-lg font-semibold">
@@ -93,22 +104,6 @@
   </ul>
 </div>
 
-<!-- MODAL -->
-<div id="modal"
-     class="fixed inset-0 hidden items-center justify-center bg-black/50">
-  
-  <div class="bg-white rounded-xl p-6 w-80 text-center shadow-xl animate-pop">
-    <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
-    <p id="modalText" class="text-gray-600 mb-4"></p>
-
-    <button onclick="closeModal()"
-      class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
-      OK
-    </button>
-  </div>
-
-</div>
-
 <script src="script.js"></script>
 <script>
 if("serviceWorker" in navigator){
@@ -118,5 +113,6 @@ if("serviceWorker" in navigator){
 </body>
 
 </html>
+
 
 
