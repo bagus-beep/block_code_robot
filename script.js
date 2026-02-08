@@ -262,11 +262,6 @@ function renderBadges(){
     .join("");
 }
 
-/* ================== MODAL ================== */
-const modal=document.getElementById("modal");
-const modalTitle=document.getElementById("modalTitle");
-const modalBody=document.getElementById("modalBody");
-
 /* ================== INIT ================== */
 const scoreEl=document.getElementById("score");
 renderBadges();
@@ -361,4 +356,5 @@ function showModal(title, body, type="info") {
 
   setTimeout(() => modal.classList.add("hidden"), 2000);
 }
+
 
