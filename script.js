@@ -341,9 +341,19 @@ async function submitLeaderboard() {
 
 let modalTimer = null;
 
+function positionModal() {
+  const game = document.getElementById("gameArea");
+  const modal = document.getElementById("modal");
+
+  const rect = game.getBoundingClientRect();
+
+  modal.style.top = rect.top + 12 + "px";
+  modal.style.left = rect.left + 12 + "px";
+}
+
 function showModal(title, body, type="info") {
   const box = document.querySelector("#modal > div");
-
+  positionModal();
   box.className =
     "rounded-lg shadow-lg p-4 animate-slide " +
     (type === "error" ? "bg-red-50 border-red-500" :
@@ -356,5 +366,6 @@ function showModal(title, body, type="info") {
 
   setTimeout(() => modal.classList.add("hidden"), 2000);
 }
+
 
 
