@@ -70,6 +70,22 @@
   </block>
 </xml>
 
+<div class="p-4 bg-white rounded-xl shadow-md mb-4">
+  <div class="flex items-center gap-3">
+    <img id="avatarPreview"
+         class="w-16 h-16 rounded-full border-4 border-yellow-400 object-cover"
+         src="avatar.png" />
+
+    <div>
+      <input id="playerName"
+             placeholder="Nama pemain"
+             class="border rounded px-2 py-1 w-full text-sm" />
+      <input type="file" id="avatarUpload"
+             class="text-xs mt-1" accept="image/*">
+    </div>
+  </div>
+</div>
+
 <div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center">
   <div class="bg-white rounded-xl p-6 shadow-xl text-center animate-bounce">
     <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
@@ -85,4 +101,5 @@ if("serviceWorker" in navigator){
 }
 </script>
 </body>
+
 </html>
