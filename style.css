@@ -55,3 +55,18 @@ canvas{
 .animate-pop {
   animation: pop .25s ease-out;
 }
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide {
+  animation: slideIn 0.25s ease-out;
+}
