@@ -2,7 +2,7 @@
 
 Game edukasi berbasis **Blockly + JavaScript Interpreter** untuk melatih
 **logika pemrograman, algoritma, dan computational thinking** pada siswa
-**SD -- SMA**.
+**SD - SMP - SMA**.
 
 Siswa memprogram robot menggunakan **blok visual**, lalu menjalankannya
 untuk menyelesaikan **maze (labirin)**, mendapatkan **score, badge, dan
