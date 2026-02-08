@@ -1,3 +1,42 @@
+/* ================== CONFIG ================== */
+const STORAGE_KEY = "robot_maze_profile";
+const API_LEADERBOARD = "/api/leaderboard";
+
+/* ================== PROFILE ================== */
+const profile = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  score: 0,
+  level: 1,
+  badges: [],
+  stats: {
+    runs: 0,
+    crashes: 0,
+    loopsUsed: 0,
+    perfectRuns: 0
+  }
+};
+
+function saveProfile() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+}
+
+/* ================== BADGES ================== */
+const BADGES = {
+  FIRST_RUN: { icon: "🚀", name: "First Move" },
+  WALL_HIT: { icon: "🧱", name: "Wall Breaker" },
+  LOOP_MASTER: { icon: "🧠", name: "Loop Master" },
+  LEVEL_CLEAR: { icon: "🏁", name: "Level Clear" },
+  PERFECT: { icon: "💯", name: "Perfect Run" },
+  SPEED: { icon: "⚡", name: "Speed Runner" }
+};
+
+function unlockBadge(key) {
+  if (profile.badges.includes(key)) return;
+  profile.badges.push(key);
+  saveProfile();
+  showModal("🏆 Achievement!", `${BADGES[key].icon} ${BADGES[key].name}`);
+  renderBadges();
+}
+
 /* ================== MAZE DATA ================== */
 const levels = [
   [
@@ -14,9 +53,7 @@ const levels = [
   ]
 ];
 
-let achievements = JSON.parse(localStorage.getItem("achievements")) || {};
-let hitWall = false;
-
+/* ================== CANVAS ================== */
 const TILE = 40;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -24,36 +61,31 @@ const ctx = canvas.getContext("2d");
 let gridX, gridY, dir;
 let score = 0, level = 0;
 let interpreter, running = false;
+let hitWall = false;
 
 /* ================== GAME ENGINE ================== */
-
-function unlockBadge(id, title, emoji){
-  if(achievements[id]) return;
-
-  achievements[id] = true;
-  localStorage.setItem("achievements", JSON.stringify(achievements));
-
-  showModal(`${emoji} Achievement!`, `Kamu mendapatkan <b>${title}</b>`);
-}
-
 function reset(){
-  gridX=1; gridY=1; dir=0; score=0;
+  gridX=1; gridY=1; dir=0;
+  score=0; hitWall=false;
   updateUI(); draw();
 }
 
 function nextLevel(){
-  unlockBadge("first_win","First Win","🏁");
+  unlockBadge("LEVEL_CLEAR");
 
-  if(!hitWall) unlockBadge("perfect","Perfect Run","⚡");
+  if (!hitWall) {
+    profile.stats.perfectRuns++;
+    unlockBadge("PERFECT");
+  }
 
   const speed = +document.getElementById("speed").value;
-  if(speed >= 15) unlockBadge("speed","Speed Runner","🚀");
+  if (speed >= 15) unlockBadge("SPEED");
 
-  showModal("🎉 Level Selesai!", "Lanjut ke level berikutnya 🚀");
+  profile.level++;
+  saveProfile();
+  submitLeaderboard();
 
-  level++;
-  hitWall=false;
-  document.getElementById("level").innerText=level+1;
+  showModal("🎉 Level Selesai!", "Naik ke level berikutnya 🚀");
   reset();
 }
 
@@ -94,12 +126,20 @@ function moveForward(){
 
   if(tile===1){
     score-=5;
-    hitWall = true;
+    hitWall=true;
+    profile.stats.crashes++;
+    if (profile.stats.crashes >= 3) unlockBadge("WALL_HIT");
+    saveProfile();
     showModal("🚧 Oops!", "Robot menabrak tembok!");
     throw "wall";
   }
 
-  gridX=nx; gridY=ny; score+=10;
+  gridX=nx; gridY=ny;
+  score+=10;
+  profile.score += 10;
+
+  if(tile===2) nextLevel();
+
   updateUI(); draw();
 }
 
@@ -168,9 +208,20 @@ function initInterpreter(i,g){
 
 function run(){
   reset();
-  const code=Blockly.JavaScript.workspaceToCode(workspace);
-  interpreter=new Interpreter(code,initInterpreter);
-  running=true; loop();
+  const code = Blockly.JavaScript.workspaceToCode(workspace);
+
+  profile.stats.runs++;
+  unlockBadge("FIRST_RUN");
+
+  if (code.includes("repeat") || code.includes("for")) {
+    profile.stats.loopsUsed++;
+    unlockBadge("LOOP_MASTER");
+  }
+
+  saveProfile();
+  interpreter = new Interpreter(code, initInterpreter);
+  running = true;
+  loop();
 }
 
 function loop(){
@@ -178,21 +229,47 @@ function loop(){
   const speed=+document.getElementById("speed").value;
   try{
     for(let i=0;i<speed;i++){
-      if(!interpreter.step()){running=false;return;}
+      if(!interpreter.step()){ running=false; return; }
     }
-  }catch(e){ alert(e); running=false; }
+  }catch(e){ running=false; }
   requestAnimationFrame(loop);
 }
 
 function pause(){ running=false; }
 function stepOnce(){ interpreter?.step(); }
 
-const scoreEl = document.getElementById("score");
-reset();
+/* ================== LEADERBOARD ================== */
+async function submitLeaderboard(){
+  try{
+    await fetch(API_LEADERBOARD,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        score: profile.score,
+        level: profile.level,
+        badges: profile.badges.length
+      })
+    });
+  }catch(e){}
+}
+
+/* ================== UI ================== */
+function renderBadges(){
+  const el=document.getElementById("badges");
+  if(!el) return;
+  el.innerHTML = profile.badges
+    .map(b=>`<span class="badge">${BADGES[b].icon}</span>`)
+    .join("");
+}
+
+/* ================== MODAL ================== */
+const modal=document.getElementById("modal");
+const modalTitle=document.getElementById("modalTitle");
+const modalBody=document.getElementById("modalBody");
 
 function showModal(title, body){
-  modalTitle.innerHTML = title;
-  modalBody.innerHTML = body;
+  modalTitle.innerHTML=title;
+  modalBody.innerHTML=body;
   modal.classList.remove("hidden");
 }
 
@@ -200,7 +277,7 @@ function closeModal(){
   modal.classList.add("hidden");
 }
 
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalBody = document.getElementById("modalBody");
-
+/* ================== INIT ================== */
+const scoreEl=document.getElementById("score");
+renderBadges();
+reset();
