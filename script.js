@@ -292,19 +292,34 @@ const toastTitle=document.getElementById("gameToastTitle");
 const toastBody=document.getElementById("gameToastBody");
 let toastTimer;
 
-function showToast(title,msg,type="info"){
-  const game=document.getElementById("gameArea").getBoundingClientRect();
-  toast.style.top=game.top+window.scrollY+12+"px";
-  toast.style.left=game.left+window.scrollX+12+"px";
-  toastBox.className="rounded-lg shadow-xl p-4 border-l-4 animate-slide "+
-    (type==="error"?"bg-red-50 border-red-500":
-     type==="success"?"bg-green-50 border-green-500":
-     "bg-blue-50 border-blue-500");
-  toastTitle.innerHTML=title;
-  toastBody.innerHTML=msg;
+function showToast(title, msg, type = "info") {
+  const gameArea = document.getElementById("gameArea");
+
+  if (gameArea) {
+    const rect = gameArea.getBoundingClientRect();
+    toast.style.top = rect.top + window.scrollY + 12 + "px";
+    toast.style.left = rect.left + window.scrollX + 12 + "px";
+  } else {
+    // fallback mobile
+    toast.style.top = "1rem";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+  }
+
+  toastBox.className =
+    "rounded-lg shadow-xl p-4 border-l-4 animate-slide " +
+    (type === "error"
+      ? "bg-red-50 border-red-500"
+      : type === "success"
+      ? "bg-green-50 border-green-500"
+      : "bg-blue-50 border-blue-500");
+
+  toastTitle.innerHTML = title;
+  toastBody.innerHTML = msg;
+
   toast.classList.remove("hidden");
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>toast.classList.add("hidden"),2200);
+  toastTimer = setTimeout(() => toast.classList.add("hidden"), 2200);
 }
 
 /* =========================================================
@@ -399,6 +414,7 @@ renderBadges();
 initLevels();
 level=Math.max(0,profile.level-1);
 reset();
+
 
 
 
