@@ -33,7 +33,7 @@ canvas{
 
 /* Unlock animation */
 @keyframes pop {
-  0%   { transform: scale(0); opacity: 0; }
+  0%   { transform: scale(7); opacity: 0; }
   60%  { transform: scale(1.2); }
   100% { transform: scale(1); opacity: 1; }
 }
@@ -50,4 +50,8 @@ canvas{
 
 #modal {
   z-index: 99999;      /* DI ATAS BLOCKLY */
+}
+
+.animate-pop {
+  animation: pop .25s ease-out;
 }
