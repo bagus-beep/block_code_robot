@@ -1,130 +1,139 @@
-<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen">
+<!DOCTYPE html>
+<html lang="id">
 
-<div class="flex flex-col lg:flex-row min-h-screen">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Babesugab Robot Maze</title>
 
-  <!-- ================= GAME PANEL ================= -->
-  <div class="lg:w-1/2 w-full flex flex-col items-center justify-start gap-4 p-4">
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- HEADER -->
-    <div class="flex items-center gap-4">
-      <img id="playerAvatarHeader"
-           src="icon-192.png"
-           class="w-12 h-12 rounded-full border-4 border-yellow-400 object-cover"/>
+  <!-- Blockly + Interpreter -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/acorn@8/dist/acorn.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/NeilFraser/JS-Interpreter@master/interpreter.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-purple-700">
-          🤖 Robot Maze Game
-        </h1>
-        <p id="playerNameHeader" class="text-xs text-gray-500">
-          Player
-        </p>
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex flex-col">
+
+  <div class="flex flex-col lg:flex-row flex-grow h-full">
+
+    <!-- LEFT / GAME -->
+    <section
+      class="w-full lg:w-1/2 flex flex-col items-center justify-center gap-4 p-4 max-w-screen-lg mx-auto lg:mx-0">
+
+      <header class="flex items-center gap-4 w-full max-w-xl px-2">
+        <img id="playerAvatarHeader" src="icon-192.png"
+          class="w-14 h-14 rounded-full border-4 border-yellow-400 object-cover shrink-0" alt="Avatar Pemain" />
+        <div>
+          <h1 class="text-2xl font-bold text-purple-700 leading-tight">
+            🤖 Robot Maze Game
+          </h1>
+          <p id="playerNameHeader" class="text-xs text-gray-600 mt-1">Player</p>
+        </div>
+      </header>
+
+      <main class="relative bg-white p-4 rounded-xl shadow-lg w-full max-w-xl">
+        <canvas id="canvas" class="w-full h-auto max-h-[400px] rounded-md" width="400" height="400" aria-label="Game Canvas"></canvas>
+      </main>
+
+      <!-- GAME NOTIFICATION -->
+      <div id="gameToast" class="hidden fixed pointer-events-none z-50 inset-x-4 top-8 max-w-xl mx-auto">
+        <div id="gameToastBox"
+          class="rounded-lg shadow-xl p-4 text-sm border-l-4 bg-blue-50 border-blue-500 animate-slide">
+          <h2 id="gameToastTitle" class="font-bold"></h2>
+          <p id="gameToastBody" class="text-gray-600 mt-1"></p>
+        </div>
       </div>
-    </div>
 
-    <!-- GAME AREA -->
-    <div id="gameArea"
-         class="relative bg-white p-3 rounded-2xl shadow-lg w-full max-w-[420px]">
-      <canvas id="canvas" width="400" height="400"
-              class="mx-auto block"></canvas>
-    </div>
-
-    <!-- TOAST -->
-    <div id="gameToast"
-         class="hidden fixed pointer-events-none z-[2147483647]">
-      <div id="gameToastBox"
-           class="rounded-lg shadow-xl p-4 text-sm border-l-4 animate-slide">
-        <h2 id="gameToastTitle" class="font-bold"></h2>
-        <p id="gameToastBody" class="text-gray-600 mt-1"></p>
+      <div class="text-lg font-semibold w-full max-w-xl px-2 flex justify-center gap-4">
+        <span>⭐ Score: <span id="score">0</span></span>
+        <span>🏁 Level: <span id="level">1</span></span>
       </div>
-    </div>
 
-    <!-- SCORE -->
-    <div class="text-base sm:text-lg font-semibold bg-white px-4 py-2 rounded-xl shadow">
-      ⭐ Score: <span id="score">0</span>
-      <span class="mx-1">|</span>
-      🏁 Level: <span id="level">1</span>
-    </div>
+      <nav
+        class="flex flex-wrap justify-center gap-2 bg-white p-3 rounded-xl shadow w-full max-w-xl px-2 text-center">
 
-    <!-- CONTROLS -->
-    <div class="flex flex-wrap items-center justify-center gap-2 bg-white p-3 rounded-xl shadow w-full max-w-[520px]">
+        <button class="btn-primary min-w-[80px]" onclick="run()" aria-label="Jalankan Game">▶ Run</button>
+        <button id="resetBtn" onclick="resetGame()" class="btn-secondary hidden min-w-[80px]"
+          aria-label="Reset Game">🔄 Reset</button>
+        <button class="btn-secondary min-w-[80px]" onclick="pause()" aria-label="Pause Game">⏸ Pause</button>
+        <button class="btn-secondary min-w-[80px]" onclick="stepOnce()" aria-label="Step Game">⏭ Step</button>
 
-      <button class="btn-primary" onclick="run()">▶ Run</button>
+        <div class="flex items-center gap-1 min-w-[130px] justify-center px-2">
+          <span role="img" aria-label="Kura-kura">🐢</span>
+          <input id="speed" type="range" min="1" max="20" value="5" class="w-full cursor-pointer" aria-label="Kontrol kecepatan" />
+          <span role="img" aria-label="Kelinci">🐇</span>
+        </div>
 
-      <button id="resetBtn"
-              onclick="resetGame()"
-              class="btn-secondary hidden">
-        🔄 Reset
-      </button>
+      </nav>
+    </section>
 
-      <button class="btn-secondary" onclick="pause()">⏸ Pause</button>
-      <button class="btn-secondary" onclick="stepOnce()">⏭ Step</button>
+    <!-- RIGHT / BLOCKLY -->
+    <aside
+      class="w-full lg:w-1/2 bg-white rounded-t-3xl lg:rounded-l-3xl shadow-inner overflow-auto h-[40vh] lg:h-auto max-w-screen-lg mx-auto lg:mx-0 px-4 py-2">
 
-      <div class="flex items-center gap-1">
-        🐢
-        <input id="speed" type="range" min="1" max="20" value="5">
-        🐇
-      </div>
-    </div>
+      <div id="blocklyDiv" class="w-full h-full min-h-[400px] lg:min-h-[600px]"></div>
+
+    </aside>
+
   </div>
 
-  <!-- ================= BLOCKLY PANEL ================= -->
-  <div class="lg:w-1/2 w-full flex-1 bg-white lg:rounded-l-3xl shadow-inner overflow-hidden">
-    <div id="blocklyDiv" class="w-full h-[60vh] lg:h-full"></div>
-  </div>
+  <!-- TOOLBOX -->
+  <xml id="toolbox" style="display:none">
+    <block type="start"></block>
+    <block type="move_forward"></block>
+    <block type="turn_left"></block>
+    <block type="turn_right"></block>
+    <block type="controls_repeat_ext">
+      <value name="TIMES">
+        <shadow type="math_number">
+          <field name="NUM">4</field>
+        </shadow>
+      </value>
+    </block>
+  </xml>
 
-</div>
+  <!-- PLAYER SETUP MODAL -->
+  <div id="playerModal"
+    class="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 hidden overflow-auto">
 
-<!-- ================= TOOLBOX ================= -->
-<xml id="toolbox" style="display:none">
-  <block type="start"></block>
-  <block type="move_forward"></block>
-  <block type="turn_left"></block>
-  <block type="turn_right"></block>
-  <block type="controls_repeat_ext">
-    <value name="TIMES">
-      <shadow type="math_number">
-        <field name="NUM">4</field>
-      </shadow>
-    </value>
-  </block>
-</xml>
+    <div
+      class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md animate-scale max-h-[90vh] overflow-auto flex flex-col items-center gap-4">
 
-<!-- ================= PLAYER MODAL ================= -->
-<div id="playerModal"
-     class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden">
+      <h2 class="text-lg font-bold mb-2 text-center">👤 Player Setup</h2>
 
-  <div class="bg-white rounded-2xl shadow-xl p-6 w-80 animate-scale">
-    <h2 class="text-lg font-bold mb-3 text-center">
-      👤 Player Setup
-    </h2>
+      <img id="avatarModalPreview" src="icon-192.png"
+        class="w-24 h-24 rounded-full border-4 border-yellow-400 object-cover" alt="Preview Avatar" />
 
-    <div class="flex flex-col items-center gap-3">
-      <img id="avatarModalPreview"
-           src="icon-192.png"
-           class="w-24 h-24 rounded-full border-4 border-yellow-400 object-cover"/>
+      <input type="file" id="avatarModalUpload" accept="image/*"
+        class="text-xs w-full border border-gray-300 rounded px-3 py-2 cursor-pointer" aria-label="Unggah avatar" />
 
-      <input type="file"
-             id="avatarModalUpload"
-             accept="image/*"
-             class="text-xs"/>
-
-      <input id="playerModalName"
-             placeholder="Nama pemain"
-             class="border rounded px-3 py-2 w-full text-sm"/>
+      <input id="playerModalName" placeholder="Nama pemain"
+        class="border rounded px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+        aria-label="Nama pemain" />
 
       <button onclick="startGame()"
-              class="mt-2 bg-purple-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-purple-700">
+        class="mt-2 bg-purple-600 text-white rounded-lg px-6 py-2 text-sm hover:bg-purple-700 w-full">
         ▶ Mulai Game
       </button>
+
     </div>
   </div>
-</div>
 
-<script src="script.js?v=1"></script>
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
+  <script src="script.js?v=1"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 
 </body>
+
+</html>
