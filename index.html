@@ -24,9 +24,21 @@
 
   <!-- LEFT / GAME -->
   <div class="w-1/2 flex flex-col items-center justify-center gap-3">
-    <h1 class="text-2xl font-bold text-purple-700">
-      🤖 Robot Maze Game
-    </h1>
+    <div class="flex items-center gap-4">
+      <img id="playerAvatarHeader"
+           src="avatar.png"
+           class="w-12 h-12 rounded-full border-4 border-yellow-400 object-cover"/>
+    
+      <div>
+        <h1 class="text-2xl font-bold text-purple-700">
+          🤖 Robot Maze Game
+        </h1>
+        <p id="playerNameHeader"
+           class="text-xs text-gray-500">
+          Player
+        </p>
+      </div>
+    </div>
 
     <div class="relative bg-white p-3 rounded-xl shadow-lg" id="gameArea">
       <canvas id="canvas" width="400" height="400"></canvas>
@@ -81,27 +93,35 @@
   </block>
 </xml>
 
-<div class="p-4 bg-white rounded-xl shadow-md mb-4">
-  <div class="flex items-center gap-3">
-    <img id="avatarPreview"
-         class="w-16 h-16 rounded-full border-4 border-yellow-400 object-cover"
-         src="avatar.png" />
+<!-- PLAYER SETUP MODAL -->
+<div id="playerModal"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
 
-    <div>
-      <input id="playerName"
+  <div class="bg-white rounded-xl shadow-xl p-6 w-80 animate-scale">
+    <h2 class="text-lg font-bold mb-3 text-center">
+      👤 Player Setup
+    </h2>
+
+    <div class="flex flex-col items-center gap-3">
+      <img id="avatarModalPreview"
+           src="avatar.png"
+           class="w-24 h-24 rounded-full border-4 border-yellow-400 object-cover"/>
+
+      <input type="file"
+             id="avatarModalUpload"
+             accept="image/*"
+             class="text-xs"/>
+
+      <input id="playerModalName"
              placeholder="Nama pemain"
-             class="border rounded px-2 py-1 w-full text-sm" />
-      <input type="file" id="avatarUpload"
-             class="text-xs mt-1" accept="image/*">
+             class="border rounded px-3 py-2 w-full text-sm"/>
+
+      <button onclick="startGame()"
+              class="mt-2 bg-purple-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-purple-700">
+        ▶ Mulai Game
+      </button>
     </div>
   </div>
-</div>
-
-<div class="bg-white rounded-xl shadow-md p-4">
-  <h2 class="font-bold text-lg mb-2">🏆 Leaderboard</h2>
-  <ul id="leaderboard"
-      class="space-y-2 text-sm">
-  </ul>
 </div>
 
 <script src="script.js"></script>
@@ -113,6 +133,7 @@ if("serviceWorker" in navigator){
 </body>
 
 </html>
+
 
 
 
