@@ -110,18 +110,6 @@ belajar siswa** dengan pendekatan *gamification*.
 
 ------------------------------------------------------------------------
 
-## 📦 Struktur Folder
-
-    blockly-robot-maze/
-    ├── index.html
-    ├── style.css
-    ├── script.js
-    ├── manifest.json
-    ├── service-worker.js
-    └── README.md
-
-------------------------------------------------------------------------
-
 ## 🛠️ Teknologi
 
 -   Blockly
