@@ -267,16 +267,6 @@ const modal=document.getElementById("modal");
 const modalTitle=document.getElementById("modalTitle");
 const modalBody=document.getElementById("modalBody");
 
-function showModal(title, body){
-  modalTitle.innerHTML=title;
-  modalBody.innerHTML=body;
-  modal.classList.remove("hidden");
-}
-
-function closeModal(){
-  modal.classList.add("hidden");
-}
-
 /* ================== INIT ================== */
 const scoreEl=document.getElementById("score");
 renderBadges();
@@ -353,3 +343,22 @@ async function submitLeaderboard() {
     console.warn("Offline mode");
   }
 }
+
+let modalTimer = null;
+
+function showModal(title, body, type="info") {
+  const box = document.querySelector("#modal > div");
+
+  box.className =
+    "rounded-lg shadow-lg p-4 animate-slide " +
+    (type === "error" ? "bg-red-50 border-red-500" :
+     type === "success" ? "bg-green-50 border-green-500" :
+     "bg-blue-50 border-blue-500");
+
+  modalTitle.innerHTML = title;
+  modalBody.innerHTML = body;
+  modal.classList.remove("hidden");
+
+  setTimeout(() => modal.classList.add("hidden"), 2000);
+}
+
