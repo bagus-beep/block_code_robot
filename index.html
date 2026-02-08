@@ -28,19 +28,19 @@
       🤖 Robot Maze Game
     </h1>
 
-    <div class="relative bg-white p-3 rounded-xl shadow-lg">
+    <div class="relative bg-white p-3 rounded-xl shadow-lg" id="gameArea">
       <canvas id="canvas" width="400" height="400"></canvas>
-        <!-- GAME POPUP -->
-        <div id="modal"
-          class="hidden absolute top-4 left-4 z-50 max-w-xs">
-        
-          <div class="bg-white border-l-4 border-blue-500
-                      rounded-lg shadow-lg p-4 animate-slide">
-            <h2 id="modalTitle" class="font-bold text-sm"></h2>
-            <p id="modalBody" class="text-xs text-gray-600 mt-1"></p>
-          </div>
-        
-        </div>
+    </div>
+    
+    <!-- GAME POPUP (GLOBAL tapi POSISI KE GAME) -->
+    <div id="modal"
+      class="hidden fixed z-[9999] max-w-xs pointer-events-none">
+    
+      <div class="bg-white border-l-4 border-blue-500
+                  rounded-lg shadow-xl p-4 animate-slide">
+        <h2 id="modalTitle" class="font-bold text-sm"></h2>
+        <p id="modalBody" class="text-xs text-gray-600 mt-1"></p>
+      </div>
     </div>
 
     <div class="text-lg font-semibold">
@@ -113,6 +113,7 @@ if("serviceWorker" in navigator){
 </body>
 
 </html>
+
 
 
 
