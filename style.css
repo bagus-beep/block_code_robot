@@ -1,0 +1,13 @@
+/* tombol konsisten */
+.btn-primary{
+  @apply bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition;
+}
+
+.btn-secondary{
+  @apply bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition;
+}
+
+canvas{
+  background:#fff;
+  border-radius:12px;
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Babesugab Robot Maze</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Blockly + Interpreter -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/acorn@8/dist/acorn.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/NeilFraser/JS-Interpreter@master/interpreter.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="manifest" href="manifest.json">
+
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 h-screen">
+
+<div class="flex h-full">
+
+  <!-- LEFT / GAME -->
+  <div class="w-1/2 flex flex-col items-center justify-center gap-3">
+    <h1 class="text-2xl font-bold text-purple-700">
+      🤖 Robot Maze Game
+    </h1>
+
+    <div class="bg-white p-3 rounded-xl shadow-lg">
+      <canvas id="canvas" width="400" height="400"></canvas>
+    </div>
+
+    <div class="text-lg font-semibold">
+      ⭐ Score: <span id="score">0</span> | 🏁 Level: <span id="level">1</span>
+    </div>
+
+    <div class="flex items-center gap-2 bg-white p-3 rounded-xl shadow">
+      <button class="btn-primary" onclick="run()">▶ Run</button>
+      <button class="btn-secondary" onclick="pause()">⏸ Pause</button>
+      <button class="btn-secondary" onclick="stepOnce()">⏭ Step</button>
+      <div class="flex items-center gap-1">
+        🐢
+        <input id="speed" type="range" min="1" max="20" value="5">
+        🐇
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT / BLOCKLY -->
+  <div class="w-1/2 bg-white rounded-l-3xl shadow-inner">
+    <div id="blocklyDiv" class="h-full"></div>
+  </div>
+
+</div>
+
+<!-- TOOLBOX -->
+<xml id="toolbox" style="display:none">
+  <block type="start"></block>
+  <block type="move_forward"></block>
+  <block type="turn_left"></block>
+  <block type="turn_right"></block>
+  <block type="controls_repeat_ext">
+    <value name="TIMES">
+      <shadow type="math_number">
+        <field name="NUM">4</field>
+      </shadow>
+    </value>
+  </block>
+</xml>
+
+<div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center">
+  <div class="bg-white rounded-xl p-6 shadow-xl text-center animate-bounce">
+    <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
+    <p id="modalBody" class="mb-4"></p>
+    <button onclick="closeModal()" class="btn-primary">OK</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+</body>
+</html>

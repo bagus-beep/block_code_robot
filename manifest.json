@@ -1,0 +1,15 @@
+{
+  "name": "Blockly Robot Maze",
+  "short_name": "RobotMaze",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#e0e7ff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
