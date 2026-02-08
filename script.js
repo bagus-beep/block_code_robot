@@ -33,7 +33,7 @@ function unlockBadge(key) {
   if (profile.badges.includes(key)) return;
   profile.badges.push(key);
   saveProfile();
-  showModal("🏆 Achievement!", `${BADGES[key].icon} ${BADGES[key].name}`);
+  showToast("🏆 Achievement!", `${BADGES[key].icon} ${BADGES[key].name}`);
   renderBadges();
 }
 
@@ -85,7 +85,7 @@ function nextLevel(){
   saveProfile();
   submitLeaderboard();
 
-  showModal("🎉 Level Selesai!", "Naik ke level berikutnya 🚀");
+  showToast("🎉 Level Selesai!", "Naik ke level berikutnya 🚀");
   reset();
 }
 
@@ -130,7 +130,7 @@ function moveForward(){
     profile.stats.crashes++;
     if (profile.stats.crashes >= 3) unlockBadge("WALL_HIT");
     saveProfile();
-    showModal("🚧 Oops!", "Robot menabrak tembok!");
+    showToast("🚧 Oops!", "Robot menabrak tembok!");
     throw "wall";
   }
 
@@ -339,33 +339,39 @@ async function submitLeaderboard() {
   }
 }
 
-let modalTimer = null;
+const toast = document.getElementById("gameToast");
+const toastBox = document.getElementById("gameToastBox");
+const toastTitle = document.getElementById("gameToastTitle");
+const toastBody = document.getElementById("gameToastBody");
 
-function positionModal() {
+let toastTimer = null;
+
+function showToast(title, message, type = "info") {
+  positionToast();
+
+  toastBox.className =
+    "rounded-lg shadow-xl p-4 text-sm border-l-4 animate-slide " +
+    (type === "error"
+      ? "bg-red-50 border-red-500"
+      : type === "success"
+      ? "bg-green-50 border-green-500"
+      : "bg-blue-50 border-blue-500");
+
+  toastTitle.innerHTML = title;
+  toastBody.innerHTML = message;
+
+  toast.classList.remove("hidden");
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2200);
+}
+
+function positionToast() {
   const game = document.getElementById("gameArea");
-  const modal = document.getElementById("modal");
-
   const rect = game.getBoundingClientRect();
 
-  modal.style.top = rect.top + 12 + "px";
-  modal.style.left = rect.left + 12 + "px";
+  toast.style.top = rect.top + window.scrollY + 12 + "px";
+  toast.style.left = rect.left + window.scrollX + 12 + "px";
 }
-
-function showModal(title, body, type="info") {
-  const box = document.querySelector("#modal > div");
-  positionModal();
-  box.className =
-    "rounded-lg shadow-lg p-4 animate-slide " +
-    (type === "error" ? "bg-red-50 border-red-500" :
-     type === "success" ? "bg-green-50 border-green-500" :
-     "bg-blue-50 border-blue-500");
-
-  modalTitle.innerHTML = title;
-  modalBody.innerHTML = body;
-  modal.classList.remove("hidden");
-
-  setTimeout(() => modal.classList.add("hidden"), 2000);
-}
-
-
-
