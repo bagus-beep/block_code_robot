@@ -232,10 +232,11 @@ function nextLevel(){
    UI & TOAST
 ========================================================= */
 const scoreEl=document.getElementById("score");
+const levelEl = document.getElementById("level");
+
 function updateUI(){
-  scoreEl.textContent=score;
-  const lvl=document.getElementById("levelUI");
-  if(lvl) lvl.textContent=level+1;
+  scoreEl.textContent = score;
+  if(levelEl) levelEl.textContent = level + 1;
 }
 
 const toast=document.getElementById("gameToast");
@@ -351,4 +352,5 @@ renderBadges();
 initLevels();
 level=Math.max(0,profile.level-1);
 reset();
+
 
