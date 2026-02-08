@@ -49,13 +49,18 @@ modalUpload.addEventListener("change", e=>{
   reader.readAsDataURL(file);
 });
 
-window.addEventListener("load", ()=>{
+function initPlayer() {
   const player = loadPlayer();
-  if(player.name){
+
+  if (player.name && player.name.trim() !== "") {
     applyPlayer(player);
     modal.classList.add("hidden");
+  } else {
+    modal.classList.remove("hidden");
   }
-});
+}
+
+window.addEventListener("DOMContentLoaded", initPlayer);
 
 /* =========================================================
    PROFILE & BADGES
@@ -267,3 +272,4 @@ function stepOnce(){interpreter?.step();}
 ========================================================= */
 renderBadges();
 reset();
+
