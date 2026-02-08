@@ -106,6 +106,19 @@ function renderBadges() {
   ).join("");
 }
 
+/* ================== BLOCK DEFINITIONS ================== */
+
+Blockly.Blocks['start'] = {
+  init: function () {
+    this.appendDummyInput()
+        .appendField("▶ mulai");
+    this.setNextStatement(true);
+    this.setColour(20);
+    this.setTooltip("Mulai program");
+    this.setHelpUrl("");
+  }
+};
+
 /* =========================================================
    MAZE & CANVAS
 ========================================================= */
@@ -344,3 +357,4 @@ async function submitLeaderboard(){
 ========================================================= */
 renderBadges();
 reset();
+
