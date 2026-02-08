@@ -175,6 +175,21 @@ function draw(){
   ctx.restore();
 }
 
+function resetGame(){
+  running = false;
+  score = 0;
+  level = 0;
+  profile.level = 1;
+  profile.score = 0;
+  saveProfile();
+
+  initLevels();
+  reset();
+
+  document.getElementById("resetBtn")?.classList.add("hidden");
+  showToast("🔄 Reset","Game dimulai ulang","success");
+}
+
 /* =========================================================
    ROBOT ACTIONS
 ========================================================= */
@@ -204,28 +219,32 @@ function turnRight(){dir=(dir+90)%360;draw();}
    LEVEL FLOW
 ========================================================= */
 function nextLevel(){
-  unlockBadge("LEVEL_CLEAR");
+   unlockBadge("LEVEL_CLEAR");
 
-  if(!hitWall){
-    profile.stats.perfectRuns++;
-    unlockBadge("PERFECT");
-  }
+   if(!hitWall){
+      profile.stats.perfectRuns++;
+      unlockBadge("PERFECT");
+   }
 
-  if(+document.getElementById("speed").value>=15)
-    unlockBadge("SPEED");
+   if(+document.getElementById("speed").value>=15)
+      unlockBadge("SPEED");
 
-  profile.level++;
-  saveProfile();
-  level++;
+   profile.level++;
+   saveProfile();
+   level++;
+   
+   if(level >= MAX_LEVEL){
+     updateUI(); // pastikan UI benar (Level 10)
+     showToast("🏆 Tamat!","Semua level selesai!","success");
+     running = false;
+   
+     document.getElementById("resetBtn")?.classList.remove("hidden");
+     launchConfetti(); // 🎉
+     return;
+   }
 
-  if(level>=MAX_LEVEL){
-    showToast("🏆 Tamat!","Semua level selesai!","success");
-    running=false;
-    return;
-  }
-
-  showToast("🎉 Level Up!",`Masuk Level ${level+1}`,"success");
-  reset();
+   showToast("🎉 Level Up!",`Masuk Level ${level+1}`,"success");
+   reset();
 }
 
 /* =========================================================
@@ -236,7 +255,35 @@ const levelEl = document.getElementById("level");
 
 function updateUI(){
   scoreEl.textContent = score;
-  if(levelEl) levelEl.textContent = level + 1;
+
+  if(levelEl){
+    const displayLevel = Math.min(level + 1, MAX_LEVEL);
+    levelEl.textContent = displayLevel;
+  }
+}
+
+function launchConfetti(){
+  const duration = 2000;
+  const end = Date.now() + duration;
+
+  (function frame(){
+    confetti({
+      particleCount: 6,
+      angle: 60,
+      spread: 70,
+      origin: { x: 0 }
+    });
+    confetti({
+      particleCount: 6,
+      angle: 120,
+      spread: 70,
+      origin: { x: 1 }
+    });
+
+    if(Date.now() < end){
+      requestAnimationFrame(frame);
+    }
+  })();
 }
 
 const toast=document.getElementById("gameToast");
@@ -352,5 +399,6 @@ renderBadges();
 initLevels();
 level=Math.max(0,profile.level-1);
 reset();
+
 
 
