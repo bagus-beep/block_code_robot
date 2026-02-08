@@ -47,3 +47,7 @@ canvas{
   from { box-shadow: 0 0 8px #facc15; }
   to   { box-shadow: 0 0 18px #f97316; }
 }
+
+#modal {
+  z-index: 99999;      /* DI ATAS BLOCKLY */
+}
